@@ -6,7 +6,7 @@ RUN /build.sh
 
 FROM golang:latest
 
-COPY --from=builder /go/bin /go
+COPY --from=builder /go/bin /go/bin/
 
 EXPOSE 8080/tcp
-ENTRYPOINT ["/build-and-run.sh"]
+ENTRYPOINT ["/go/bin/terraform-test-api"]
