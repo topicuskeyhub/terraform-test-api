@@ -76,7 +76,7 @@ func writeConfig(r *http.Request) {
 	}
 	defer varsTf.Close()
 	for n, v := range msg.Vars {
-		_, err = varsTf.WriteString(n + " = " + v + "\n")
+		_, err = varsTf.WriteString(n + " = \"" + v + "\"\n")
 		if err != nil {
 			log.Fatalf("cannot test.auto.tfvars: %s", err)
 		}
