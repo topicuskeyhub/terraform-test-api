@@ -2,7 +2,7 @@ FROM golang:latest as builder
 
 ADD build.sh /
 ADD work /
-RUN build.sh
+RUN /build.sh
 
 FROM golang:latest
 
