@@ -2,6 +2,8 @@
 
 set -xe
 
+go install hashcorp/terraform@latest
+
 cd /work
 go work init
 go work use ./sdk-go ./terraform-provider-keyhub-generator ./terraform-provider-keyhub ./terraform-test-api
