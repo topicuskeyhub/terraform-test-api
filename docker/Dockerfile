@@ -6,7 +6,7 @@ RUN /build.sh
 
 FROM golang:latest
 
-COPY --from=otel-builder /go/bin /go
+COPY --from=builder /go/bin /go
 
 EXPOSE 8080/tcp
 ENTRYPOINT ["/build-and-run.sh"]
