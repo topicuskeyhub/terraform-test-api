@@ -8,7 +8,7 @@ go work use ./sdk-go ./terraform-provider-keyhub-generator ./terraform-provider-
 
 cd terraform-provider-keyhub
 go generate ./...
-go install
+go install .
 
 cat << EOF > ~/.terraformrc
 provider_installation {
@@ -25,5 +25,4 @@ provider_installation {
 EOF
 
 cd ../terraform-test-api
-go install
-
+go install .
