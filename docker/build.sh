@@ -2,7 +2,7 @@
 
 set -xe
 
-go install hashcorp/terraform@latest
+go install github.com/hashcorp/terraform@latest
 
 cd /work
 go work init
