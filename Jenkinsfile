@@ -8,6 +8,8 @@ config {
 node() {
 	catchError {
 		stage('Clone repos') {
+			git.checkout { }
+
 			dir('work/sdk-go') {
 				checkout scmGit(
 					branches: [[name: '*/main']],
