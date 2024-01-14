@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"slices"
 
 	"github.com/hashicorp/go-version"
 	"github.com/hashicorp/hc-install/product"
@@ -93,8 +94,8 @@ func tfApply(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	writeConfig(r)
-	err := tf.ApplyJSON(r.Context(), w, tfexec.RefreshOnly(true))
+	msg := writeConfig(r)
+	err := tf.ApplyJSON(r.Context(), w, tfexec.RefreshOnly(slices.Contains(msg.Opts, "-refresh-only")))
 	if err != nil {
 		log.Println(err)
 	}
@@ -109,21 +110,6 @@ func tfImport(w http.ResponseWriter, r *http.Request) {
 
 	msg := writeConfig(r)
 	err := tf.Import(r.Context(), msg.Args[0], msg.Args[1])
-	if err != nil {
-		w.WriteHeader(http.StatusInternalServerError)
-		log.Println(err)
-	}
-}
-
-func tfRefresh(w http.ResponseWriter, r *http.Request) {
-	if r.Method != http.MethodPost {
-		log.Println("Method not supported " + r.Method)
-		w.WriteHeader(http.StatusMethodNotAllowed)
-		return
-	}
-
-	msg := writeConfig(r)
-	err := tf.RefreshJSON(r.Context(), msg.Args[0], msg.Args[1])
 	if err != nil {
 		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
