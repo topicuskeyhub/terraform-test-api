@@ -15,6 +15,8 @@ import (
 )
 
 type Message struct {
+	Args   []string
+	Opts   []string
 	Config string
 	Vars   map[string]string
 }
@@ -48,7 +50,7 @@ func setupTerraform() *tfexec.Terraform {
 	return ret
 }
 
-func writeConfig(r *http.Request) {
+func writeConfig(r *http.Request) Message {
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
 		log.Fatalf("cannot read body: %s", err)
@@ -81,9 +83,10 @@ func writeConfig(r *http.Request) {
 			log.Fatalf("cannot test.auto.tfvars: %s", err)
 		}
 	}
+	return msg
 }
 
-func apply(w http.ResponseWriter, r *http.Request) {
+func tfApply(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		log.Println("Method not supported " + r.Method)
 		w.WriteHeader(http.StatusMethodNotAllowed)
@@ -91,8 +94,38 @@ func apply(w http.ResponseWriter, r *http.Request) {
 	}
 
 	writeConfig(r)
-	err := tf.ApplyJSON(r.Context(), w)
+	err := tf.ApplyJSON(r.Context(), w, tfexec.RefreshOnly(true))
 	if err != nil {
+		log.Println(err)
+	}
+}
+
+func tfImport(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		log.Println("Method not supported " + r.Method)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	msg := writeConfig(r)
+	err := tf.Import(r.Context(), msg.Args[0], msg.Args[1])
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+	}
+}
+
+func tfRefresh(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		log.Println("Method not supported " + r.Method)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	msg := writeConfig(r)
+	err := tf.RefreshJSON(r.Context(), msg.Args[0], msg.Args[1])
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
 		log.Println(err)
 	}
 }
@@ -101,6 +134,7 @@ func main() {
 	tf = setupTerraform()
 
 	mux := http.NewServeMux()
-	mux.HandleFunc("/apply", apply)
+	mux.HandleFunc("/apply", tfApply)
+	mux.HandleFunc("/import", tfImport)
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
