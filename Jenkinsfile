@@ -2,7 +2,7 @@
 config {
 	concurrentBuilds = false
 	daysToKeep = 21
-	cronTrigger = '@weekend'
+	cronTrigger = 'H 7 * * *'
 }
 
 node() {
