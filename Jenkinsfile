@@ -30,7 +30,7 @@ node() {
 			}
 			dir('docker/work/terraform-provider-keyhub') {
 				checkout scmGit(
-					branches: [[name: '*/main']],
+					branches: [[name: '*/debug']],
 					extensions: [cleanAfterCheckout(deleteUntrackedNestedRepositories: true)],
 					userRemoteConfigs: [[
 						credentialsId: '358853c8-44a1-4a63-81c2-c89007ab2863',

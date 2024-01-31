@@ -12,7 +12,7 @@ go work init
 go work use ./sdk-go ./terraform-provider-keyhub-generator ./terraform-provider-keyhub ./terraform-test-api ./terraform-plugin-framework
 
 cd terraform-provider-keyhub
-go generate ./...
+# go generate ./...
 go install .
 
 cd ../terraform-test-api
