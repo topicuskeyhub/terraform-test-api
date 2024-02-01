@@ -97,6 +97,7 @@ func tfApply(w http.ResponseWriter, r *http.Request) {
 
 	msg := writeConfig(r)
 	err := tf.ApplyJSON(r.Context(), w, tfexec.RefreshOnly(slices.Contains(msg.Opts, "-refresh-only")))
+	tf.SetStdout(nil)
 	if err != nil {
 		log.Println(err)
 	}
