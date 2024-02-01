@@ -7,6 +7,7 @@ import (
 	"log"
 	"net/http"
 	"os"
+	"path"
 	"slices"
 
 	"github.com/hashicorp/go-version"
@@ -116,11 +117,25 @@ func tfImport(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func cleanup(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		log.Println("Method not supported " + r.Method)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	dir, _ := os.ReadDir(workingDir)
+	for _, d := range dir {
+		os.RemoveAll(path.Join([]string{workingDir, d.Name()}...))
+	}
+}
+
 func main() {
 	tf = setupTerraform()
 
 	mux := http.NewServeMux()
 	mux.HandleFunc("/apply", tfApply)
 	mux.HandleFunc("/import", tfImport)
+	mux.HandleFunc("/cleanup", cleanup)
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
