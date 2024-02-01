@@ -117,6 +117,23 @@ func tfImport(w http.ResponseWriter, r *http.Request) {
 	}
 }
 
+func tfOutput(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodGet {
+		log.Println("Method not supported " + r.Method)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+
+	output, err := tf.Output(r.Context())
+	if err != nil {
+		w.WriteHeader(http.StatusInternalServerError)
+		log.Println(err)
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	json.NewEncoder(w).Encode(output)
+}
+
 func cleanup(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		log.Println("Method not supported " + r.Method)
@@ -136,6 +153,7 @@ func main() {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/apply", tfApply)
 	mux.HandleFunc("/import", tfImport)
+	mux.HandleFunc("/output", tfOutput)
 	mux.HandleFunc("/cleanup", cleanup)
 	log.Fatal(http.ListenAndServe(":8080", mux))
 }
