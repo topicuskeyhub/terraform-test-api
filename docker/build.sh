@@ -9,7 +9,7 @@ unzip -d /go/bin terraform_1.9.5_linux_amd64.zip
 
 cd /work
 go work init
-go work use ./sdk-go ./terraform-provider-keyhub-generator ./terraform-provider-keyhub ./terraform-test-api ./terraform-plugin-framework
+go work use ./sdk-go ./terraform-provider-keyhub-generator ./terraform-provider-keyhub ./terraform-test-api
 
 cd terraform-provider-keyhub
 go generate ./...
