@@ -3,7 +3,7 @@
 set -xe
 
 cd /work/sdk-go
-go generate ./...
+go generate .
 go install .
 
 cd /work/terraform-provider-keyhub
