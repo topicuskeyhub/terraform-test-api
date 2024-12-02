@@ -80,6 +80,7 @@ func rebuild(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("build failed: %s", err)
 	}
 
+	cmd.Stderr = cmd.Stdout
 	if err := cmd.Start(); err != nil {
 		log.Fatalf("build failed: %s", err)
 	}
