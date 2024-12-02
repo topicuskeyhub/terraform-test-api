@@ -1,12 +1,14 @@
 package main
 
 import (
+	"bufio"
 	"context"
 	"encoding/json"
 	"io"
 	"log"
 	"net/http"
 	"os"
+	"os/exec"
 	"path"
 	"slices"
 
@@ -50,6 +52,46 @@ func setupTerraform() *tfexec.Terraform {
 		log.Fatalf("error running NewTerraform: %s", err)
 	}
 	return ret
+}
+
+func rebuild(w http.ResponseWriter, r *http.Request) {
+	openapi, err := os.Create("/work/sdk-go/openapi.json")
+	if err != nil {
+		log.Fatalf("cannot open openapi file: %s", err)
+	}
+	defer func() {
+		if err := openapi.Close(); err != nil {
+			log.Fatalf("cannot close file: %s", err)
+		}
+	}()
+
+	data, err := io.ReadAll(r.Body)
+	if err != nil {
+		log.Fatalf("cannot read body: %s", err)
+	}
+	_, err = openapi.Write(data)
+	if err != nil {
+		log.Fatalf("cannot write openapi file: %s", err)
+	}
+
+	cmd := exec.Command("/build.sh")
+	stdout, err := cmd.StdoutPipe()
+	if err != nil {
+		log.Fatalf("build failed: %s", err)
+	}
+
+	if err := cmd.Start(); err != nil {
+		log.Fatalf("build failed: %s", err)
+	}
+
+	in := bufio.NewScanner(stdout)
+
+	for in.Scan() {
+		log.Print(in.Text())
+	}
+	if err := in.Err(); err != nil {
+		log.Printf("error: %s", err)
+	}
 }
 
 func writeConfig(r *http.Request) Message {
@@ -152,6 +194,7 @@ func main() {
 	tf = setupTerraform()
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/rebuild", rebuild)
 	mux.HandleFunc("/apply", tfApply)
 	mux.HandleFunc("/import", tfImport)
 	mux.HandleFunc("/output", tfOutput)
