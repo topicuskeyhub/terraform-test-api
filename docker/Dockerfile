@@ -1,6 +1,7 @@
 FROM golang:latest
 
 ADD build.sh /
+ADD rebuild.sh /
 ADD work /work
 RUN /build.sh
 ADD terraformrc /root/.terraformrc

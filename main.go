@@ -74,7 +74,7 @@ func rebuild(w http.ResponseWriter, r *http.Request) {
 		log.Fatalf("cannot write openapi file: %s", err)
 	}
 
-	cmd := exec.Command("/build.sh")
+	cmd := exec.Command("/rebuild.sh")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Fatalf("build failed: %s", err)
