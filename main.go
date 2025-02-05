@@ -103,6 +103,11 @@ func rebuild(w http.ResponseWriter, r *http.Request) {
 	if err := in.Err(); err != nil {
 		log.Printf("error: %s", err)
 	}
+	if err := cmd.Wait(); err != nil {
+		log.Printf("build failed: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
+	}
 }
 
 func writeConfig(r *http.Request) Message {
