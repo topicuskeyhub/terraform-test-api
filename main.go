@@ -37,7 +37,7 @@ func setupTerraform() *tfexec.Terraform {
 	}
 	installer := &releases.ExactVersion{
 		Product: product.Terraform,
-		Version: version.Must(version.NewVersion("1.9.5")),
+		Version: version.Must(version.NewVersion("1.10.5")),
 	}
 
 	execPath, err := installer.Install(context.Background())
@@ -57,7 +57,9 @@ func setupTerraform() *tfexec.Terraform {
 func rebuild(w http.ResponseWriter, r *http.Request) {
 	openapi, err := os.Create("/work/sdk-go/openapi.json")
 	if err != nil {
-		log.Fatalf("cannot open openapi file: %s", err)
+		log.Printf("cannot open openapi file: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	defer func() {
 		if err := openapi.Close(); err != nil {
@@ -67,22 +69,30 @@ func rebuild(w http.ResponseWriter, r *http.Request) {
 
 	data, err := io.ReadAll(r.Body)
 	if err != nil {
-		log.Fatalf("cannot read body: %s", err)
+		log.Printf("cannot read body: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 	_, err = openapi.Write(data)
 	if err != nil {
-		log.Fatalf("cannot write openapi file: %s", err)
+		log.Printf("cannot write openapi file: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	cmd := exec.Command("/rebuild.sh")
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
-		log.Fatalf("build failed: %s", err)
+		log.Printf("build failed: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	cmd.Stderr = cmd.Stdout
 	if err := cmd.Start(); err != nil {
-		log.Fatalf("build failed: %s", err)
+		log.Printf("build failed: %s", err)
+		w.WriteHeader(http.StatusInternalServerError)
+		return
 	}
 
 	in := bufio.NewScanner(stdout)
