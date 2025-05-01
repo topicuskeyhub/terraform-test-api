@@ -51,6 +51,10 @@ func setupTerraform() *tfexec.Terraform {
 	if err != nil {
 		log.Fatalf("error running NewTerraform: %s", err)
 	}
+	if os.Getenv("TF_LOG") != "" {
+		ret.SetLog(os.Getenv("TF_LOG"))
+		ret.SetLogPath("/tmp/terraform.log")
+	}
 	return ret
 }
 
