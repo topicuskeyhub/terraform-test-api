@@ -35,9 +35,9 @@ func setupTerraform() *tfexec.Terraform {
 	if err != nil {
 		log.Fatalf("error creating workdir: %s", err)
 	}
-	installer := &releases.ExactVersion{
+	installer := &releases.LatestVersion{
 		Product: product.Terraform,
-		Version: version.Must(version.NewVersion("1.10.5")),
+		Constraints: version.MustConstraints(version.NewConstraint(">= 1.11.3")),
 	}
 
 	execPath, err := installer.Install(context.Background())
