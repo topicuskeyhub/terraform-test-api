@@ -29,6 +29,8 @@ var tf *tfexec.Terraform
 
 var workingDir string
 
+const TERRAFORM_LOG_FILE = "/tmp/terraform.log"
+
 func setupTerraform() *tfexec.Terraform {
 	var err error
 	workingDir, err = os.MkdirTemp("/tmp", "terraapiwork")
@@ -51,10 +53,15 @@ func setupTerraform() *tfexec.Terraform {
 	if err != nil {
 		log.Fatalf("error running NewTerraform: %s", err)
 	}
+
+	clearTerraformLog()
+	ret.SetLogPath(TERRAFORM_LOG_FILE)
 	if os.Getenv("TF_LOG") != "" {
 		ret.SetLog(os.Getenv("TF_LOG"))
-		ret.SetLogPath("/tmp/terraform.log")
+	} else {
+		ret.SetLog("INFO")
 	}
+
 	return ret
 }
 
@@ -197,6 +204,25 @@ func tfOutput(w http.ResponseWriter, r *http.Request) {
 	json.NewEncoder(w).Encode(output)
 }
 
+func setup(w http.ResponseWriter, r *http.Request) {
+	if r.Method != http.MethodPost {
+		log.Println("Method not supported " + r.Method)
+		w.WriteHeader(http.StatusMethodNotAllowed)
+		return
+	}
+	clearTerraformLog()
+}
+
+func clearTerraformLog() {
+	// clear and 'touch' the log file
+	os.Remove(TERRAFORM_LOG_FILE)
+	file, err := os.OpenFile(TERRAFORM_LOG_FILE, os.O_RDONLY|os.O_CREATE, 0644)
+	if err != nil {
+		return
+	}
+	file.Close()
+}
+
 func cleanup(w http.ResponseWriter, r *http.Request) {
 	if r.Method != http.MethodPost {
 		log.Println("Method not supported " + r.Method)
@@ -214,6 +240,7 @@ func main() {
 	tf = setupTerraform()
 
 	mux := http.NewServeMux()
+	mux.HandleFunc("/setup", setup)
 	mux.HandleFunc("/rebuild", rebuild)
 	mux.HandleFunc("/apply", tfApply)
 	mux.HandleFunc("/import", tfImport)
