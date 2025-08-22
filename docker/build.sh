@@ -5,7 +5,7 @@ set -xe
 TF_VERSION="1.11.3"
 
 apt update
-apt -y install unzip libicu72
+apt -y install unzip libicu76
 wget https://releases.hashicorp.com/terraform/${TF_VERSION}/terraform_${TF_VERSION}_linux_amd64.zip
 unzip -d /go/bin terraform_${TF_VERSION}_linux_amd64.zip
 
