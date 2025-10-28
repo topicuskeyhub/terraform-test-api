@@ -9,14 +9,17 @@ else
 fi
 
 cd /work/sdk-go
+git pull
 git checkout $BRANCH || echo "Using branch 'main'"
 go generate .
 go install .
 
 cd /work/terraform-provider-keyhub-generator
+git pull
 git checkout $BRANCH || echo "Using branch 'main'"
 
 cd /work/terraform-provider-keyhub
+git pull
 git checkout $BRANCH || echo "Using branch 'main'"
 go generate ./...
 go install .
