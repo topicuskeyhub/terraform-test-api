@@ -38,7 +38,7 @@ func setupTerraform() *tfexec.Terraform {
 		log.Fatalf("error creating workdir: %s", err)
 	}
 	installer := &releases.LatestVersion{
-		Product: product.Terraform,
+		Product:     product.Terraform,
 		Constraints: version.MustConstraints(version.NewConstraint(">= 1.11.3")),
 	}
 
@@ -91,7 +91,7 @@ func rebuild(w http.ResponseWriter, r *http.Request) {
 		return
 	}
 
-	cmd := exec.Command("/rebuild.sh")
+	cmd := exec.Command("/rebuild.sh", r.URL.Query().Get("branch"))
 	stdout, err := cmd.StdoutPipe()
 	if err != nil {
 		log.Printf("build failed: %s", err)
