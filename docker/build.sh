@@ -2,7 +2,7 @@
 
 set -xe
 
-TF_VERSION="1.14.7"
+TF_VERSION="1.14.8"
 
 apt update
 apt -y install unzip libicu76
