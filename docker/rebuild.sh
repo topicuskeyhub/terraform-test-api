@@ -11,7 +11,11 @@ fi
 cd /work/sdk-go
 git fetch
 git checkout $BRANCH || echo "Using branch 'main'"
-go generate .
+if grep -qF "$(cat /opt/kiota/url)" generate.sh; then
+	mkdir -p tmp
+	cp /opt/kiota/linux-x64.zip tmp/
+fi
+WGETRC=/opt/kiota/wgetrc go generate .
 go install .
 
 cd /work/terraform-provider-keyhub-generator
